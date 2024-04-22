@@ -1,57 +1,49 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Task } from './entities/task';
-
-const tasks: Task[] = [
-  {
-    id: '1',
-    title: 'Hacer la compra',
-    owner: 'Juan',
-    isDone: false,
-  },
-  {
-    id: '2',
-    title: 'Lavar el coche',
-    owner: 'Ana',
-    isDone: true,
-  },
-  {
-    id: '3',
-    title: 'Preparar la presentación',
-    owner: 'Carlos',
-    isDone: false,
-  },
-];
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateTaskDto, UpdateTaskDto } from './entitites/task.dto';
 
 @Injectable()
 export class TasksService {
-  tasks: Task[] = tasks;
+  constructor(private prismaService: PrismaService) {}
 
   async findAll() {
-    return this.tasks;
+    return this.prismaService.task.findMany();
   }
   async findById(id: string) {
-    return this.tasks.find((task) => task.id === id);
+    const data = this.prismaService.task.findUnique({ where: { id } });
+    if (!data) {
+      throw new NotFoundException(`Task ${id} not found`);
+    }
+    return data;
   }
-  async create(data: Omit<Task, 'id'>) {
-    const newTask = { ...data, id: String(this.tasks.length + 1) };
-    this.tasks.push(newTask);
+
+  async create(data: CreateTaskDto) {
+    const newTask = this.prismaService.task.create({
+      data,
+    });
     return newTask;
   }
-  async update(id: string, data: Partial<Omit<Task, 'id'>>) {
-    const task = this.tasks.find((task) => task.id === id);
-    if (task) {
-      Object.assign(task, data);
+
+  async update(id: string, data: UpdateTaskDto) {
+    try {
+      const task = this.prismaService.task.update({
+        where: { id },
+        data,
+      });
       return task;
+    } catch (error) {
+      throw new NotFoundException(`Task ${id} not found`);
     }
   }
+
   async delete(id: string) {
-    const index = this.tasks.findIndex((task) => task.id === id);
-    if (index > -1) {
-      const task = this.tasks[index];
-      this.tasks.splice(index, 1);
-    } else {
-      throw new NotFoundException(`task ${id} not found`);
+    try {
+      const task = await this.prismaService.task.delete({
+        where: { id },
+      });
+    } catch (error) {
+      throw new NotFoundException(`Task ${id} not found`);
     }
   }
 }
