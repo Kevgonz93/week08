@@ -15,10 +15,10 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './entities/users.dto';
-import { CryptoService } from 'src/core/crypto.service';
+import { CryptoService } from '../core/crypto.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AuthGuard } from 'src/core/auth.guard';
+import { AuthGuard } from '../core/auth.guard';
 
 @UsePipes(
   new ValidationPipe({
@@ -34,6 +34,7 @@ export class UsersController {
     private configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
+
   @Get('login')
   async tokenLogin(@Headers('Authorization') auth: string) {
     console.log(auth);
