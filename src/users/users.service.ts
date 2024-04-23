@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './entities/users.dto';
 import { User } from './entities/user';
+import { ConfigService } from '@nestjs/config';
 
 const select = {
   id: true,
@@ -35,6 +37,23 @@ export class UsersService {
     return data;
   }
 
+  async findPasswordForLogin(email: string): Promise<{
+    password: string;
+    id: string;
+    role: string;
+  } | null> {
+    const result = await this.prismaService.user.findUnique({
+      where: { email },
+      select: {
+        password: true,
+        id: true,
+        role: true,
+      },
+    });
+
+    return result;
+  }
+
   async create(data: CreateUserDto): Promise<User> {
     const newUser = this.prismaService.user.create({ data, select });
     return newUser;
@@ -44,7 +63,7 @@ export class UsersService {
     try {
       const user = this.prismaService.user.update({
         where: { id },
-        data,
+        data: data,
         select,
       });
       return user;
