@@ -1,6 +1,8 @@
+import { User } from 'src/users/entities/user';
+
 export interface Task {
   id: string;
   title: string;
-  owner: string;
+  owner: Omit<User, 'tasks'>;
   isDone: boolean;
 }

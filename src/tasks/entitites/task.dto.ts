@@ -4,7 +4,7 @@ export class CreateTaskDto {
   @IsString()
   title: string;
   @IsString()
-  owner: string;
+  ownerId: string;
 }
 
 export class UpdateTaskDto {
@@ -14,7 +14,7 @@ export class UpdateTaskDto {
   })
   title?: string;
   @IsString()
-  owner?: string;
+  ownerId?: string;
   @IsBoolean()
   isDone?: boolean;
 }
